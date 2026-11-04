@@ -17,9 +17,14 @@ export function MultiSelectView({
 
   return (
     <div className="task-interaction">
-      <p className="task-multi-note">
-        Birden fazla seçenek işaretleyebilirsin. Hazır olduğunda kontrol et.
-      </p>
+      <div className="smartboard-guide-banner" role="status">
+        <span className="smartboard-guide-banner__icon" aria-hidden="true">💡</span>
+        <div className="smartboard-guide-banner__content">
+          <strong>Çoklu Seçim Sorusu:</strong>
+          <span> Bu soruda birden fazla doğru cevap var. Doğru olduğunu düşündüğün tüm kutulara dokun.</span>
+        </div>
+      </div>
+
       <div className="options-grid options-grid--multi" role="group" aria-label="Cevap seçenekleri">
         {task.options.map((option, index) => {
           const active = selected.includes(option.id);

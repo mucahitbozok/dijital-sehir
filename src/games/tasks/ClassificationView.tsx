@@ -37,14 +37,17 @@ export function ClassificationView({
 
   return (
     <div className="task-interaction">
-      <p className="task-multi-note">
-        Bir kart seç, ardından ait olduğu grubun “Bu gruba ekle” düğmesine dokun. İstersen
-        kartı sürükleyip grup kutusuna bırakabilirsin.
-      </p>
+      <div className="smartboard-guide-banner" role="status">
+        <span className="smartboard-guide-banner__icon" aria-hidden="true">🖐️</span>
+        <div className="smartboard-guide-banner__content">
+          <strong>Akıllı Tahta İpucu:</strong>
+          <span> Karta dokunup ardından grubun kutusuna dokunabilir ya da kartı doğrudan kutunun içine sürükleyebilirsin.</span>
+        </div>
+      </div>
 
       <div className="classify-pool" aria-label="Yerleştirilecek kartlar">
         {pool.length === 0 ? (
-          <p className="classify-pool__empty">Tüm kartlar yerleştirildi. Şimdi kontrol edebilirsin.</p>
+          <p className="classify-pool__empty">✓ Tüm kavramlar yerleştirildi! Sıra kontrol etmede.</p>
         ) : (
           pool.map((item) => {
             const active = selectedItem === item.id;
@@ -63,7 +66,8 @@ export function ClassificationView({
                 onClick={() => setSelectedItem(active ? null : item.id)}
                 disabled={disabled}
               >
-                {item.label}
+                <span className="classify-chip__grip" aria-hidden="true">⠿</span>
+                <span>{item.label}</span>
               </button>
             );
           })
@@ -71,9 +75,13 @@ export function ClassificationView({
       </div>
 
       <p className="classify-selection" role="status">
-        {selectedLabel
-          ? `Seçili kart: ${selectedLabel}. Şimdi bir grup seç.`
-          : 'Kart seçmek için dokun.'}
+        {selectedLabel ? (
+          <>
+            <strong>Seçili Kavram:</strong> «{selectedLabel}» → Şimdi aşağıdaki kutulardan birine dokun!
+          </>
+        ) : (
+          'Yerleştirmek istediğin karta dokun veya sürükle.'
+        )}
       </p>
 
       <div className="classify-grid">
@@ -86,44 +94,60 @@ export function ClassificationView({
               key={category.id}
               className={`classify-zone${selectedItem ? ' classify-zone--ready' : ''}`}
               aria-label={`${category.text} grubu`}
+              onClick={() => {
+                if (selectedItem && !disabled) {
+                  assign(selectedItem, category.id);
+                }
+              }}
               onDragOver={(event) => {
                 if (!disabled) event.preventDefault();
               }}
               onDrop={(event) => {
                 event.preventDefault();
-                const itemId = event.dataTransfer.getData('text/plain');
+                const itemId = event.dataTransfer.getData('text/plain') || selectedItem;
                 if (itemId) assign(itemId, category.id);
               }}
               onDragEnter={(event) => event.preventDefault()}
             >
               <header className="classify-zone__head">
                 <h3>{category.text}</h3>
-                <span>{categoryItems.length}</span>
+                <span className="classify-zone__counter">{categoryItems.length}</span>
               </header>
               <div className="classify-zone__items">
-                {categoryItems.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className="classify-chip classify-chip--assigned"
-                    onClick={() => unassign(item.id)}
-                    disabled={disabled}
-                    aria-label={`${item.label}, geri al`}
-                  >
-                    {item.label}
-                    <span aria-hidden="true"> ×</span>
-                  </button>
-                ))}
+                {categoryItems.length === 0 ? (
+                  <div className="classify-zone__placeholder">
+                    {selectedItem ? 'Dokunarak buraya ekle' : 'Kavramları buraya bırak'}
+                  </div>
+                ) : (
+                  categoryItems.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className="classify-chip classify-chip--assigned"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        unassign(item.id);
+                      }}
+                      disabled={disabled}
+                      aria-label={`${item.label}, geri al`}
+                      title="Geri almak için dokun"
+                    >
+                      <span>{item.label}</span>
+                      <span className="chip-remove" aria-hidden="true">✕</span>
+                    </button>
+                  ))
+                )}
               </div>
               <button
                 type="button"
                 className="btn btn--soft btn--small classify-zone__add"
                 disabled={!selectedItem || disabled}
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   if (selectedItem) assign(selectedItem, category.id);
                 }}
               >
-                Bu gruba ekle
+                + Bu gruba ekle
               </button>
             </section>
           );

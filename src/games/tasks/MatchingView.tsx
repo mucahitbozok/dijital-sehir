@@ -27,6 +27,15 @@ export function MatchingView({
     setActiveLeft(null);
   };
 
+  const unassignLeft = (leftId: string) => {
+    if (disabled) return;
+    setPairs((current) => {
+      const next = { ...current };
+      delete next[leftId];
+      return next;
+    });
+  };
+
   const handleLeft = (leftId: string) => {
     if (disabled) return;
     setActiveLeft((current) => (current === leftId ? null : leftId));
@@ -48,44 +57,65 @@ export function MatchingView({
 
   return (
     <div className="task-interaction">
-      <p className="task-multi-note">
-        Önce soldaki bir ifadeyi seç, sonra sağdaki eşini işaretle. Eşleşmeleri
-        temizleyip yeniden deneyebilirsin.
-      </p>
+      <div className="smartboard-guide-banner" role="status">
+        <span className="smartboard-guide-banner__icon" aria-hidden="true">🖐️</span>
+        <div className="smartboard-guide-banner__content">
+          <strong>Akıllı Tahta İpucu:</strong>
+          <span> Soldaki bir karta dokunup seç, ardından sağdaki eşine dokunarak eşleştir.</span>
+        </div>
+      </div>
 
       <div className="match-layout">
         <div className="match-column" role="group" aria-label="Eşleştirilecek ifadeler">
-          <h3 className="match-column__title">İfade</h3>
+          <h3 className="match-column__title">1. İfade / Tanım</h3>
           {task.left.map((left) => {
             const pairId = pairs[left.id];
             const pairText = task.right.find((right) => right.id === pairId)?.text;
             const isActive = activeLeft === left.id;
             return (
-              <button
+              <div
                 key={left.id}
-                type="button"
-                className={`match-card${isActive ? ' match-card--active' : ''}${
-                  pairId ? ' match-card--paired' : ''
+                className={`match-card-wrapper${isActive ? ' is-active' : ''}${
+                  pairId ? ' is-paired' : ''
                 }`}
-                onClick={() => handleLeft(left.id)}
-                aria-pressed={isActive}
-                disabled={disabled}
               >
-                <span className="match-card__label">{left.text}</span>
-                {pairText ? (
-                  <span className="match-card__pair">↔ {pairText}</span>
-                ) : (
-                  <span className="match-card__empty">
-                    {isActive ? 'Şimdi sağdan eşini seç' : 'Eşleşme bekliyor'}
-                  </span>
+                <button
+                  type="button"
+                  className={`match-card${isActive ? ' match-card--active' : ''}${
+                    pairId ? ' match-card--paired' : ''
+                  }`}
+                  onClick={() => handleLeft(left.id)}
+                  aria-pressed={isActive}
+                  disabled={disabled}
+                >
+                  <span className="match-card__label">{left.text}</span>
+                  {pairText ? (
+                    <span className="match-card__pair">↔ {pairText}</span>
+                  ) : (
+                    <span className="match-card__empty">
+                      {isActive ? '👉 Şimdi sağdan eşini seç' : 'Dokunarak seç'}
+                    </span>
+                  )}
+                </button>
+                {pairId && (
+                  <button
+                    type="button"
+                    className="match-card__clear-btn"
+                    onClick={() => unassignLeft(left.id)}
+                    disabled={disabled}
+                    title="Eşleştirmeyi kaldır"
+                    aria-label={`${left.text} eşleştirmesini kaldır`}
+                  >
+                    ✕
+                  </button>
                 )}
-              </button>
+              </div>
             );
           })}
         </div>
 
         <div className="match-column" role="group" aria-label="Eşleşme seçenekleri">
-          <h3 className="match-column__title">Eşleşme</h3>
+          <h3 className="match-column__title">2. Karşılık / Açıklama</h3>
           {rightOrder.map((right) => {
             const owner = Object.entries(pairs).find(([, value]) => value === right.id);
             const isUsed = Boolean(owner);
@@ -98,14 +128,12 @@ export function MatchingView({
                 disabled={disabled || (!activeLeft && !isUsed)}
                 title={
                   !activeLeft && !isUsed
-                    ? 'Önce soldan bir ifade seç'
-                    : isUsed
-                      ? 'Bu eşleşme kullanılıyor'
-                      : 'Eşleştir'
+                    ? 'Eşleştirmek için önce soldan bir ifade seç'
+                    : right.text
                 }
               >
                 <span className="match-card__label">{right.text}</span>
-                {isUsed && <span className="match-card__check">✓</span>}
+                {isUsed && <span className="match-card__badge">✓ Eşleşti</span>}
               </button>
             );
           })}
@@ -113,34 +141,19 @@ export function MatchingView({
       </div>
 
       <div className="task-actions">
-        <p className="task-actions__hint" role="status">
-          {activeLeft
-            ? 'Soldan bir ifade seçildi. Sağdaki eşini seç.'
+        <p className="task-actions__hint">
+          {allPaired
+            ? 'Tüm eşleşmeler tamamlandı.'
             : `${pairedCount} / ${task.left.length} eşleşme yapıldı.`}
         </p>
-        <div className="task-actions__buttons">
-          {pairedCount > 0 && (
-            <button
-              type="button"
-              className="btn btn--ghost"
-              onClick={() => {
-                setPairs({});
-                setActiveLeft(null);
-              }}
-              disabled={disabled}
-            >
-              Eşleşmeleri temizle
-            </button>
-          )}
-          <button
-            type="button"
-            className="btn btn--primary btn--large"
-            disabled={!allPaired || disabled}
-            onClick={submit}
-          >
-            Kontrol Et
-          </button>
-        </div>
+        <button
+          type="button"
+          className="btn btn--primary btn--large"
+          disabled={!allPaired || disabled}
+          onClick={submit}
+        >
+          Kontrol Et
+        </button>
       </div>
     </div>
   );
