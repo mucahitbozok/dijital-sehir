@@ -4,7 +4,6 @@ import { DISTRICTS } from '../data/districts';
 import { districtStats, overallStats } from '../game/progress';
 import type { DistrictStats } from '../game/progress';
 import { CityMap } from '../components/CityMap';
-import { CharacterGuide } from '../components/CharacterGuide';
 import { BadgeIcon } from '../components/BadgeIcon';
 import { DistrictIcon } from '../components/DistrictIcon';
 import { Stars } from '../components/Stars';
@@ -25,13 +24,6 @@ export function HomeScreen({ data, mode, onSelectDistrict, onOpenFinal }: Props)
     {} as Record<DistrictId, DistrictStats>,
   );
   const overall = overallStats(data, mode);
-
-  const guideMessage =
-    overall.badges === 0
-      ? 'Merhaba! Ben Öğretmen Bozok. Şehirdeki altı binadan birine dokunarak maceraya başla.'
-      : overall.allComplete
-        ? 'Tebrikler! Altı bölgenin rozetini de topladın. Ödül töreni seni bekliyor!'
-        : `${overall.badges} rozet kazandın! Kalan bölgeleri tamamlayıp altı rozeti toplayabilirsin.`;
 
   return (
     <main className="home-screen">
@@ -54,8 +46,6 @@ export function HomeScreen({ data, mode, onSelectDistrict, onOpenFinal }: Props)
         <span className="home-badge-shelf__count">{overall.badges}/6</span>
       </div>
 
-      <CharacterGuide message={guideMessage} />
-
       {overall.allComplete && (
         <button type="button" className="final-banner" onClick={onOpenFinal}>
           <span className="final-banner__icon" aria-hidden="true">
@@ -73,9 +63,6 @@ export function HomeScreen({ data, mode, onSelectDistrict, onOpenFinal }: Props)
       )}
 
       <div className="mobile-home">
-        <div className="mobile-home__guide">
-          <CharacterGuide message={guideMessage} compact />
-        </div>
         <div className="mobile-home__intro">
           <p className="eyebrow">5. SINIF BİLİŞİM TEKNOLOJİLERİ · 1. TEMA</p>
           <h1>Dijital Şehir</h1>

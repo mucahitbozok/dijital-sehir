@@ -2480,13 +2480,6 @@ kbd {
       linear-gradient(180deg, #e0f7ff, #f8fafc);
   }
 
-  .mobile-home__guide {
-    display: flex;
-    justify-content: center;
-    margin: 8px auto 14px;
-    max-width: 520px;
-  }
-
   .mobile-home__intro {
     text-align: center;
     padding: 8px 6px 16px;

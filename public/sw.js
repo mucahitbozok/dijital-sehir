@@ -2,7 +2,7 @@
    Uygulama kabuğu ve derleme çıktısındaki dosyalar ilk kurulumda önbelleğe
    alınır. Harici istek yoktur; tüm varlıklar aynı kaynaktandır. */
 
-const CACHE_VERSION = 'dijital-sehir-v4';
+const CACHE_VERSION = 'dijital-sehir-v5';
 const APP_SHELL = ['./', './index.html', './manifest.webmanifest'];
 
 async function precacheBuild(cache) {
