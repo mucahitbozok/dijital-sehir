@@ -84,12 +84,10 @@ function Windows({
 function RoofDecor({
   district,
   rx,
-  ry,
   h,
 }: {
   district: DistrictId;
   rx: number;
-  ry: number;
   h: number;
 }) {
   const palette = PALETTE[district];
@@ -246,7 +244,7 @@ function Building({
         }
       }}
     >
-      <title>{`${district.name} — ${district.answered}/${district.total} görev`}</title>
+      <title>{`${district.name} — ${stats.answered}/${stats.total} görev`}</title>
 
       <ellipse cx="0" cy={ry + 6} rx={rx * 1.35} ry={ry * 0.55} fill="rgba(15,23,42,0.18)" />
 
@@ -281,7 +279,7 @@ function Building({
         <line x1={-rx + 10} y1={-h * 0.52} x2={rx - 10} y2={-h * 0.52} stroke="rgba(255,255,255,0.35)" strokeWidth="2" />
       </g>
 
-      <RoofDecor district={districtId} rx={rx} ry={ry} h={h} />
+      <RoofDecor district={districtId} rx={rx} h={h} />
 
       <g transform={`translate(0 ${plaqueTop})`}>
         <rect
