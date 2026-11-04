@@ -4,6 +4,7 @@ import {
   HINT_COST,
   checkAnswer,
   correctAnswerText,
+  evaluateAnswer,
   pointsFor,
 } from './checking';
 
@@ -140,6 +141,87 @@ describe('pointsFor', () => {
   it('ipucu kullanıldığında puanı açıkça düşürür', () => {
     expect(pointsFor(mc, true, true)).toBe(100 - HINT_COST);
     expect(pointsFor(order, true, true)).toBe(200 - HINT_COST);
+  });
+});
+
+describe('evaluateAnswer', () => {
+  it('eşleştirmede bir hata olduğunda sıfır vermek yerine kısmi puan (ara puan) verir', () => {
+    // 2 eşleştirmeden 1'i doğru olduğunda %50 puan (100 puanın yarısı = 50 puan)
+    const result = evaluateAnswer(match, {
+      type: 'match',
+      pairs: { l1: 'r1', l2: 'r1' }, // l1 doğru, l2 yanlış
+    });
+    expect(result.fullCorrect).toBe(false);
+    expect(result.correct).toBe(true);
+    expect(result.ratio).toBe(0.5);
+    expect(result.earned).toBe(50);
+    expect(result.detailText).toBe('2 eşleştirmeden 1 tanesi doğru');
+  });
+
+  it('eşleştirmede hepsi doğruysa tam puan verir', () => {
+    const result = evaluateAnswer(match, {
+      type: 'match',
+      pairs: { l1: 'r1', l2: 'r2' },
+    });
+    expect(result.fullCorrect).toBe(true);
+    expect(result.correct).toBe(true);
+    expect(result.ratio).toBe(1);
+    expect(result.earned).toBe(100);
+  });
+
+  it('eşleştirmede hiçbiri doğru değilse sıfır puan verir', () => {
+    const result = evaluateAnswer(match, {
+      type: 'match',
+      pairs: { l1: 'r2', l2: 'r1' },
+    });
+    expect(result.fullCorrect).toBe(false);
+    expect(result.ratio).toBe(0);
+    expect(result.earned).toBe(0);
+  });
+
+  it('sınıflandırmada doğru yerleştirilen öğe oranına göre ara puan verir', () => {
+    // classify görevi 100 puan, 2 öğe var. 1'i doğru: 50 puan
+    const result = evaluateAnswer(classify, {
+      type: 'classify',
+      assignments: { i1: 'x', i2: 'x' }, // i1 doğru, i2 yanlış
+    });
+    expect(result.fullCorrect).toBe(false);
+    expect(result.ratio).toBe(0.5);
+    expect(result.earned).toBe(50);
+    expect(result.detailText).toBe('2 kavramdan 1 tanesi doğru grupta');
+  });
+
+  it('sıralamada adımların bir kısmı doğruysa ara puan verir', () => {
+    // order 200 puan, 3 adımdan 1'i yerinde: 1/3 veya bağıl ikili eşleşme oranıyla ara puan
+    const result = evaluateAnswer(order, {
+      type: 'order',
+      order: ['o1', 'o3', 'o2'],
+    });
+    expect(result.fullCorrect).toBe(false);
+    expect(result.earned).toBeGreaterThan(0);
+  });
+
+  it('çoklu seçimde kısmi doğruya ara puan verir', () => {
+    // multi doğru cevapları: ['a', 'c']. Görev puanı: 150. Öğrenci sadece 'a' seçti: 1/2 = 75 puan
+    const result = evaluateAnswer(multi, {
+      type: 'multi',
+      optionIds: ['a'],
+    });
+    expect(result.fullCorrect).toBe(false);
+    expect(result.ratio).toBe(0.5);
+    expect(result.earned).toBe(75);
+  });
+
+  it('ipucu kullanıldığında ara puandan ipucu bedelini düşer', () => {
+    const result = evaluateAnswer(
+      match,
+      {
+        type: 'match',
+        pairs: { l1: 'r1', l2: 'r1' }, // 50 puan
+      },
+      true, // hintUsed
+    );
+    expect(result.earned).toBe(50 - HINT_COST);
   });
 });
 

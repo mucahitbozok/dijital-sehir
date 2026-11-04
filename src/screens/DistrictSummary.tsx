@@ -98,15 +98,23 @@ export function DistrictSummary({ data, districtId, mode, onExit, onOpenFinal }:
               const task = taskById(id);
               const result = progress.results[id];
               if (!task) return null;
+              const isFull = result && result.correct && (!result.ratio || result.ratio >= 0.999);
+              const isPart = result && result.earned > 0 && result.ratio && result.ratio < 0.999;
               return (
                 <li
                   key={id}
                   className={
-                    result ? (result.correct ? 'is-correct' : 'is-wrong') : 'is-pending'
+                    result
+                      ? isFull
+                        ? 'is-correct'
+                        : isPart
+                          ? 'is-partial'
+                          : 'is-wrong'
+                      : 'is-pending'
                   }
                 >
                   <span className="summary-task__status" aria-hidden="true">
-                    {result?.correct ? '✓' : result ? '✕' : '–'}
+                    {isFull ? '✓' : isPart ? '★' : result ? '✕' : '–'}
                   </span>
                   <span className="summary-task__title">{task.title}</span>
                   <span className="summary-task__points">

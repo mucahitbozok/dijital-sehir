@@ -1106,6 +1106,12 @@ ol {
   color: #15803d;
 }
 
+.progress-dot.is-partial {
+  background: #fef3c7;
+  border-color: #fcd34d;
+  color: #b45309;
+}
+
 .progress-dot.is-wrong {
   background: #fee2e2;
   border-color: #fca5a5;
@@ -1821,6 +1827,12 @@ ol {
   border: 2px solid #86efac;
 }
 
+.feedback-icon.is-partial {
+  background: #fef3c7;
+  color: #d97706;
+  border: 2px solid #fcd34d;
+}
+
 .feedback-icon.is-wrong {
   background: #fee2e2;
   color: #b91c1c;
@@ -1850,6 +1862,18 @@ ol {
   color: #047857;
   font-weight: 800;
   font-size: 16px;
+}
+
+.feedback__detail-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #f0fdfa;
+  border: 1.5px solid #99f6e4;
+  color: #0f766e;
+  font-size: 13.5px;
+  font-weight: 700;
 }
 
 .feedback__hint-note {
@@ -2381,6 +2405,11 @@ kbd {
 .summary-tasks li.is-correct .summary-task__status {
   background: #dcfce7;
   color: #15803d;
+}
+
+.summary-tasks li.is-partial .summary-task__status {
+  background: #fef3c7;
+  color: #b45309;
 }
 
 .summary-tasks li.is-wrong .summary-task__status {

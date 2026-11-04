@@ -264,6 +264,7 @@ function sanitizeResults(raw: unknown): Record<string, TaskResult> {
       correct: candidate.correct,
       earned: Math.max(0, Number(candidate.earned) || 0),
       hintUsed: Boolean(candidate.hintUsed),
+      ...(typeof candidate.ratio === 'number' ? { ratio: candidate.ratio } : {}),
       ...(typeof candidate.teamId === 'string' ? { teamId: candidate.teamId } : {}),
     };
   }

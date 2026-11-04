@@ -82,6 +82,7 @@ export interface TaskResult {
   earned: number;
   hintUsed: boolean;
   teamId?: string;
+  ratio?: number;
 }
 
 export interface District {

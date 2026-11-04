@@ -3,9 +3,8 @@ import type { Answer, AppData, DistrictId, Mode, TaskResult } from '../types';
 import { DISTRICT_BY_ID } from '../data/districts';
 import { taskById } from '../data/tasks';
 import {
-  checkAnswer,
   correctAnswerText,
-  pointsFor,
+  evaluateAnswer,
   HINT_COST,
 } from '../game/checking';
 import {
@@ -33,8 +32,11 @@ interface Props {
 
 interface FeedbackData {
   correct: boolean;
+  partial: boolean;
   earned: number;
   hintUsed: boolean;
+  ratio: number;
+  detailText: string;
   correctText: string;
   teamName?: string;
 }
@@ -93,16 +95,23 @@ export function PlayScreen({
 
   const submit = (answer: Answer) => {
     if (feedback) return;
-    const correct = checkAnswer(task, answer);
-    const earned = pointsFor(task, correct, hintUsed);
-    const result: TaskResult = { correct, earned, hintUsed };
+    const evaluation = evaluateAnswer(task, answer, hintUsed);
+    const result: TaskResult = {
+      correct: evaluation.correct,
+      earned: evaluation.earned,
+      hintUsed,
+      ratio: evaluation.ratio,
+    };
     if (mode === 'team' && activeTeam) result.teamId = activeTeam.id;
     onRecord(task.id, result);
-    if (soundOn) playFeedback(correct ? 'correct' : 'wrong');
+    if (soundOn) playFeedback(evaluation.earned > 0 ? 'correct' : 'wrong');
     setFeedback({
-      correct,
-      earned,
+      correct: evaluation.fullCorrect,
+      partial: evaluation.ratio > 0 && evaluation.ratio < 1,
+      earned: evaluation.earned,
       hintUsed,
+      ratio: evaluation.ratio,
+      detailText: evaluation.detailText,
       correctText: correctAnswerText(task),
       teamName: mode === 'team' ? activeTeam?.name : undefined,
     });
@@ -192,14 +201,23 @@ export function PlayScreen({
               {queue.map((id, dotIndex) => {
                 const result = progress.results[id];
                 const current = dotIndex === index;
+                const isFull = result && result.correct && (!result.ratio || result.ratio >= 0.999);
+                const isPart = result && result.earned > 0 && result.ratio && result.ratio < 0.999;
+                const isWrong = result && result.earned === 0;
+
                 return (
                   <span
                     key={id}
                     className={`progress-dot${current ? ' is-current' : ''}${
-                      result ? (result.correct ? ' is-correct' : ' is-wrong') : ''
+                      isFull ? ' is-correct' : isPart ? ' is-partial' : isWrong ? ' is-wrong' : ''
                     }`}
+                    title={
+                      result
+                        ? `${result.earned} puan kazanıldı`
+                        : `Görev ${dotIndex + 1}`
+                    }
                   >
-                    {result ? (result.correct ? '✓' : '✕') : dotIndex + 1}
+                    {isFull ? '✓' : isPart ? '★' : isWrong ? '✕' : dotIndex + 1}
                   </span>
                 );
               })}
@@ -282,20 +300,31 @@ export function PlayScreen({
         <Modal
           title={
             feedback.correct
-              ? feedback.earned > 0
-                ? 'Harika, doğru cevap!'
-                : 'Doğru cevap!'
-              : 'Bu kez olmadı'
+              ? 'Harika, tam doğru!'
+              : feedback.partial
+                ? 'Tebrikler, kısmi puan kazandın!'
+                : 'Bu kez olmadı'
           }
           subtitle={
             feedback.correct
-              ? 'Görevi başarıyla tamamladın.'
-              : 'Doğru cevabı ve açıklamayı birlikte inceleyelim.'
+              ? 'Görevi eksiksiz tamamladın.'
+              : feedback.partial
+                ? `${feedback.detailText} ve ara puan aldın.`
+                : 'Doğru cevabı ve açıklamayı birlikte inceleyelim.'
           }
           variant="feedback"
           icon={
-            <span className={`feedback-icon${feedback.correct ? ' is-correct' : ' is-wrong'}`} aria-hidden="true">
-              {feedback.correct ? '✓' : '✕'}
+            <span
+              className={`feedback-icon${
+                feedback.correct
+                  ? ' is-correct'
+                  : feedback.partial
+                    ? ' is-partial'
+                    : ' is-wrong'
+              }`}
+              aria-hidden="true"
+            >
+              {feedback.correct ? '✓' : feedback.partial ? '★' : '✕'}
             </span>
           }
           footer={
@@ -306,8 +335,13 @@ export function PlayScreen({
         >
           <div className="feedback">
             <div className="feedback__score">
-              <span className="feedback__points">+{feedback.earned} puan</span>
-              {feedback.hintUsed && feedback.correct && (
+              <span className={`feedback__points${feedback.earned > 0 ? ' is-positive' : ''}`}>
+                +{feedback.earned} puan
+              </span>
+              {feedback.partial && feedback.detailText && (
+                <span className="feedback__detail-badge">{feedback.detailText}</span>
+              )}
+              {feedback.hintUsed && feedback.earned > 0 && (
                 <span className="feedback__hint-note">
                   İpucu kullanıldı: −{HINT_COST} puan
                 </span>
@@ -319,7 +353,7 @@ export function PlayScreen({
 
             {!feedback.correct && (
               <div className="feedback__correct">
-                <h3>Doğru cevap</h3>
+                <h3>{feedback.partial ? 'Tam Doğru Çözüm' : 'Doğru Cevap'}</h3>
                 <p>{feedback.correctText}</p>
               </div>
             )}
