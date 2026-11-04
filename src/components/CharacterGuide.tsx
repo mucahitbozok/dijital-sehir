@@ -17,6 +17,8 @@ export function CharacterGuide({ message, compact = false }: Props) {
         alt="Öğretmen Bozok karakteri"
         className="guide__image"
         draggable={false}
+        loading="eager"
+        fetchPriority="high"
       />
     </aside>
   );

@@ -73,6 +73,9 @@ export function HomeScreen({ data, mode, onSelectDistrict, onOpenFinal }: Props)
       )}
 
       <div className="mobile-home">
+        <div className="mobile-home__guide">
+          <CharacterGuide message={guideMessage} compact />
+        </div>
         <div className="mobile-home__intro">
           <p className="eyebrow">5. SINIF BİLİŞİM TEKNOLOJİLERİ · 1. TEMA</p>
           <h1>Dijital Şehir</h1>

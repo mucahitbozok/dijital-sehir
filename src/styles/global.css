@@ -619,7 +619,7 @@ ol {
   position: absolute;
   left: clamp(10px, 1.6vw, 26px);
   bottom: 8px;
-  z-index: 7;
+  z-index: 25;
   display: flex;
   align-items: flex-end;
   gap: 6px;
@@ -2472,6 +2472,13 @@ kbd {
       linear-gradient(180deg, #e0f7ff, #f8fafc);
   }
 
+  .mobile-home__guide {
+    display: flex;
+    justify-content: center;
+    margin: 8px auto 14px;
+    max-width: 520px;
+  }
+
   .mobile-home__intro {
     text-align: center;
     padding: 8px 6px 16px;
@@ -2579,7 +2586,7 @@ kbd {
   }
 
   .play-aside .aside-card--guide {
-    display: none;
+    grid-column: 1 / -1;
   }
 
   .play-bar__progress {
