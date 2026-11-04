@@ -467,106 +467,114 @@ ol {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: linear-gradient(180deg, #bae6fd, #ecfeff);
+  background: radial-gradient(circle at 50% 30%, #e0f2fe, #bae6fd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .city-map-wrap {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .city-map {
   display: block;
   width: 100%;
   height: 100%;
+  max-width: calc(100vh * 16 / 9);
+  max-height: calc(100vw * 9 / 16);
+  aspect-ratio: 16 / 9;
 }
 
-.city-building {
+/* ---------- 3D Harita İnteraktif Binalar ---------- */
+.city-building-hotspot {
   cursor: pointer;
-  transform-box: fill-box;
-  transform-origin: 50% 80%;
-  transition: transform 0.22s ease, filter 0.22s ease;
   outline: none;
+  transform-box: fill-box;
+  transform-origin: center center;
+  transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.city-building:hover,
-.city-building:focus-visible {
-  transform: translateY(-7px) scale(1.02);
-  filter: drop-shadow(0 14px 18px rgba(15, 23, 42, 0.18));
+.city-building-hitbox {
+  fill: rgba(255, 255, 255, 0.001);
+  stroke: rgba(255, 255, 255, 0.45);
+  stroke-width: 2.5;
+  stroke-dasharray: 8 6;
+  opacity: 0.6;
+  transition: all 0.22s ease;
 }
 
-.city-focus-ring {
-  stroke: transparent;
+.city-building-hotspot:hover,
+.city-building-hotspot:focus-visible {
+  transform: translateY(-4px) scale(1.02);
+}
+
+.city-building-hotspot:hover .city-building-hitbox,
+.city-building-hotspot:focus-visible .city-building-hitbox {
+  fill: rgba(255, 255, 255, 0.12);
+  stroke: var(--glow-color, #00e5ff);
   stroke-width: 4;
-  stroke-dasharray: 12 10;
+  stroke-dasharray: none;
+  opacity: 1;
+  filter: drop-shadow(0 0 16px var(--glow-color, #00e5ff));
 }
 
-.city-building:focus-visible .city-focus-ring {
-  stroke: #0f766e;
+.city-building-badge {
+  transition: transform 0.22s ease;
 }
 
-.city-label-title {
+.city-building-badge-bg {
+  fill: rgba(15, 23, 42, 0.92);
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-width: 1.8;
+  backdrop-filter: blur(4px);
+}
+
+.city-building-hotspot--done .city-building-badge-bg {
+  fill: #15803d;
+  stroke: #86efac;
+  stroke-width: 2.2;
+}
+
+.city-building-badge-text {
+  fill: #ffffff;
   font-family: var(--font);
-  font-size: 17px;
+  font-size: 11px;
   font-weight: 800;
+  text-anchor: start;
+  letter-spacing: 0.4px;
 }
 
-.city-label-sub {
+.city-building-badge-stars {
+  fill: #facc15;
   font-family: var(--font);
-  font-size: 11.5px;
-  font-weight: 700;
-}
-
-.city-stars {
-  font-family: var(--font);
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 800;
+  text-anchor: end;
 }
 
 .map-legend {
-  position: absolute;
-  right: 16px;
-  bottom: 14px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px 12px;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: var(--shadow-sm);
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--ink-soft);
-  backdrop-filter: blur(6px);
-  max-width: 50%;
-}
-
-.map-legend__item {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.map-legend__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+  display: none;
 }
 
 .home-badge-shelf {
   position: absolute;
-  top: 14px;
-  left: 16px;
-  z-index: 6;
+  bottom: 12px;
+  right: 18px;
+  z-index: 10;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 7px 14px 7px 12px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1.5px solid rgba(15, 23, 42, 0.08);
+  padding: 6px 14px 6px 12px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1.5px solid rgba(15, 23, 42, 0.1);
   border-radius: 999px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.14);
   backdrop-filter: blur(8px);
 }
 
